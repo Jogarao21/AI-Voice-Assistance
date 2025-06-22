@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Portfolio - Voice Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --text-primary: #ffffff;
+            --text-secondary: #cbd5e0;
+            --border: #4a5568;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--bg-primary);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle, .voice-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .theme-toggle:hover, .voice-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .voice-toggle.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .hero-content.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ai-avatar {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Projects Section */
+        .projects {
+            padding: 6rem 0;
+            background: var(--bg-secondary);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .section-title.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .project-card.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover .project-thumbnail {
+            transform: scale(1.05);
+        }
+
+        .project-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .project-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .project-tech {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tech-tag {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Voice Assistant UI */
+        .voice-assistant {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+
+        .voice-status {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            min-width: 250px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .voice-status.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .voice-status h4 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .voice-waveform {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .wave-bar {
+            width: 3px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 2px;
+            animation: wave 1.5s ease-in-out infinite;
+        }
+
+        .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes wave {
+            0%, 100% { height: 20px; }
+            50% { height: 40px; }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .ai-avatar {
+                width: 200px;
+                height: 200px;
+                font-size: 3rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .voice-assistant {
+                bottom: 1rem;
+                right: 1rem;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in-left {
+            animation: slideInLeft 0.8s ease-in-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.8s ease-in-out;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">AI Portfolio</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="controls">
+                <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+                <button class="voice-toggle" onclick="toggleVoice()">🎤 Voice</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1>AI-Powered Portfolio</h1>
+                        <p>Experience the future of web portfolios with intelligent voice assistance and stunning animations. Let AI guide you through my projects and achievements.</p>
+                        <button class="cta-button" onclick="startVoiceTour()">Start Voice Tour</button>
+                    </div>
+                    <div class="hero-visual">
+                        <div class="ai-avatar">🤖</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="projects">
+            <div class="container">
+                <h2 class="section-title">Featured Projects</h2>
+                <div class="projects-grid">
+                    <div class="project-card" onclick="explainProject(0)">
+                        <div class="project-thumbnail">🧠</div>
+                        <h3 class="project-title">Neural Network Visualizer</h3>
+                        <p class="project-description">Interactive visualization of neural networks with real-time training data and performance metrics.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">Python</span>
+                            <span class="tech-tag">TensorFlow</span>
+                            <span class="tech-tag">D3.js</span>
+                        </div>
+                    </div>
+
+                    <div class="project-card" onclick="explainProject(1)">
+                        <div class="project-thumbnail">💬</div>
+                        <h3 class="project-title">AI Chatbot Platform</h3>
+                        <p class="project-description">Intelligent conversational AI with natural language processing and multi-language support.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">Node.js</span>
+                            <span class="tech-tag">NLP</span>
+                            <span class="tech-tag">React</span>
+                        </div>
+                    </div>
+
+                    <div class="project-card" onclick="explainProject(2)">
+                        <div class="project-thumbnail">📊</div>
+                        <h3 class="project-title">Data Analytics Dashboard</h3>
+                        <p class="project-description">Real-time data visualization dashboard with predictive analytics and machine learning insights.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">Python</span>
+                            <span class="tech-tag">Pandas</span>
+                            <span class="tech-tag">Plotly</span>
+                        </div>
+                    </div>
+
+                    <div class="project-card" onclick="explainProject(3)">
+                        <div class="project-thumbnail">🎵</div>
+                        <h3 class="project-title">AI Music Composer</h3>
+                        <p class="project-description">Machine learning model that composes original music based on genre preferences and mood analysis.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">PyTorch</span>
+                            <span class="tech-tag">Music21</span>
+                            <span class="tech-tag">LSTM</span>
+                        </div>
+                    </div>
+
+                    <div class="project-card" onclick="explainProject(4)">
+                        <div class="project-thumbnail">🚗</div>
+                        <h3 class="project-title">Autonomous Vehicle Sim</h3>
+                        <p class="project-description">Self-driving car simulation with computer vision and reinforcement learning algorithms.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">OpenCV</span>
+                            <span class="tech-tag">Reinforcement Learning</span>
+                            <span class="tech-tag">Unity</span>
+                        </div>
+                    </div>
+
+                    <div class="project-card" onclick="explainProject(5)">
+                        <div class="project-thumbnail">🔮</div>
+                        <h3 class="project-title">Predictive Analytics Engine</h3>
+                        <p class="project-description">Advanced forecasting system using ensemble methods and time series analysis for business intelligence.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">Scikit-learn</span>
+                            <span class="tech-tag">Time Series</span>
+                            <span class="tech-tag">SQL</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="voice-assistant">
+        <div class="voice-status" id="voiceStatus">
+            <h4>Voice Assistant</h4>
+            <p id="voiceMessage">Click the microphone to start</p>
+            <div class="voice-waveform" id="waveform" style="display: none;">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Management
+        let currentTheme = 'light';
+        
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            
+            const themeButton = document.querySelector('.theme-toggle');
+            themeButton.textContent = currentTheme === 'light' ? '🌙' : '☀️';
+            
+            // Simulate localStorage behavior with variables
+            console.log(`Theme saved: ${currentTheme}`);
+        }
+
+        // Voice Assistant
+        let voiceEnabled = false;
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+
+        const projects = [
+            {
+                title: "Neural Network Visualizer",
+                description: "This project creates beautiful visualizations of neural networks in real-time. Users can watch as the network learns and adapts, seeing the weights and biases change during training. Built with Python and TensorFlow for the backend processing, and D3.js for stunning interactive visualizations."
+            },
+            {
+                title: "AI Chatbot Platform", 
+                description: "An intelligent conversational AI that understands context and provides meaningful responses. The platform supports multiple languages and can be customized for different industries. Built using Node.js for scalability, advanced NLP techniques for understanding, and React for a responsive user interface."
+            },
+            {
+                title: "Data Analytics Dashboard",
+                description: "A comprehensive dashboard that transforms raw data into actionable insights. Features real-time data processing, predictive analytics, and machine learning models that forecast trends. Built with Python for data processing, Pandas for analysis, and Plotly for interactive visualizations."
+            },
+            {
+                title: "AI Music Composer",
+                description: "This creative AI generates original music compositions based on mood, genre preferences, and musical theory. The system learns from classical and contemporary pieces to create unique melodies and harmonies. Built using PyTorch for deep learning, Music21 for music theory, and LSTM networks for sequence generation."
+            },
+            {
+                title: "Autonomous Vehicle Simulation",
+                description: "A realistic self-driving car simulation that uses computer vision to navigate complex environments. The AI learns through reinforcement learning, making decisions about steering, acceleration, and braking. Built with OpenCV for image processing, reinforcement learning algorithms, and Unity for 3D simulation."
+            },
+            {
+                title: "Predictive Analytics Engine",
+                description: "An advanced forecasting system that helps businesses make data-driven decisions. Uses ensemble methods and time series analysis to predict market trends, customer behavior, and operational metrics. Built with Scikit-learn for machine learning, specialized time series algorithms, and SQL for data management."
+            }
+        ];
+
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            const voiceButton = document.querySelector('.voice-toggle');
+            const voiceStatus = document.getElementById('voiceStatus');
+            const voiceMessage = document.getElementById('voiceMessage');
+            
+            if (voiceEnabled) {
+                voiceButton.classList.add('active');
+                voiceStatus.classList.add('show');
+                voiceMessage.textContent = 'Voice assistant is active. Click on projects to hear descriptions!';
+                speak("Voice assistant activated. Click on any project card to hear a detailed explanation.");
+            } else {
+                voiceButton.classList.remove('active');
+                voiceStatus.classList.remove('show');
+                if (currentUtterance) {
+                    speechSynthesis.cancel();
+                }
+            }
+        }
+
+        function speak(text) {
+            if (!voiceEnabled) return;
+            
+            if (currentUtterance) {
+                speechSynthesis.cancel();
+            }
+            
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.rate = 0.8;
+            currentUtterance.pitch = 1;
+            currentUtterance.volume = 0.8;
+            
+            const waveform = document.getElementById('waveform');
+            const voiceMessage = document.getElementById('voiceMessage');
+            
+            currentUtterance.onstart = () => {
+                waveform.style.display = 'flex';
+                voiceMessage.textContent = 'Speaking...';
+            };
+            
+            currentUtterance.onend = () => {
+                waveform.style.display = 'none';
+                voiceMessage.textContent = 'Click on projects to hear descriptions!';
+            };
+            
+            speechSynthesis.speak(currentUtterance);
+        }
+
+        function explainProject(index) {
+            if (voiceEnabled && projects[index]) {
+                const project = projects[index];
+                speak(`${project.title}. ${project.description}`);
+            }
+        }
+
+        function startVoiceTour() {
+            if (!voiceEnabled) {
+                toggleVoice();
+            }
+            speak("Welcome to my AI-powered portfolio! I'm your voice assistant. I'll guide you through my featured projects. Each project represents my expertise in artificial intelligence and machine learning. Click on any project card to hear a detailed explanation of the technologies used and the problems they solve.");
+        }
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        // Initialize animations
+        function initAnimations() {
+            const heroContent = document.querySelector('.hero-content');
+            const sectionTitle = document.querySelector('.section-title');
+            const projectCards = document.querySelectorAll('.project-card');
+            
+            // Observe elements
+            if (heroContent) observer.observe(heroContent);
+            if (sectionTitle) observer.observe(sectionTitle);
+            
+            projectCards.forEach((card, index) => {
+                // Stagger animation delays
+                card.style.transitionDelay = `${index * 0.1}s`;
+                observer.observe(card);
+            });
+        }
+
+        // Lazy loading for project thumbnails
+        function initLazyLoading() {
+            const thumbnails = document.querySelectorAll('.project-thumbnail');
+            
+            const thumbnailObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Simulate loading effect
+                        entry.target.style.opacity = '0.5';
+                        setTimeout(() => {
+                            entry.target.style.opacity = '1';
+                        }, 300);
+                        thumbnailObserver.unobserve(entry.target);
+                    }
+                });
+            });
+            
+            thumbnails.forEach(thumb => {
+                thumbnailObserver.observe(thumb);
+            });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initAnimations();
+            initLazyLoading();
+            
+            // Auto-animate hero on load
+            setTimeout(() => {
+                document.querySelector('.hero-content').classList.add('animate');
+            }, 500);
+        });
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Header scroll effect
+        let lastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > lastScrollY && window.scrollY > 100) {
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                header.style.transform = 'translateY(0)';
+            }
+            lastScrollY = window.scrollY;
+        });
+    </script>
+</body>
+</html>
